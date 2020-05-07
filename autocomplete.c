@@ -1,7 +1,7 @@
 /*****************************************************************************
  * autocomplete: x264cli shell autocomplete
  *****************************************************************************
- * Copyright (C) 2018-2019 x264 project
+ * Copyright (C) 2018-2020 x264 project
  *
  * Authors: Henrik Gramner <henrik@gramner.com>
  *
@@ -27,6 +27,7 @@
 #include "input/input.h"
 
 #if HAVE_LAVF
+#undef DECLARE_ALIGNED
 #include <libavformat/avformat.h>
 #include <libavutil/pixdesc.h>
 #endif

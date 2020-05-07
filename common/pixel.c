@@ -1,7 +1,7 @@
 /*****************************************************************************
  * pixel.c: pixel metrics
  *****************************************************************************
- * Copyright (C) 2003-2019 x264 project
+ * Copyright (C) 2003-2020 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -31,18 +31,18 @@
 #   include "x86/pixel.h"
 #   include "x86/predict.h"
 #endif
-#if ARCH_PPC
+#if HAVE_ALTIVEC
 #   include "ppc/pixel.h"
 #endif
-#if ARCH_ARM
+#if HAVE_ARMV6
 #   include "arm/pixel.h"
 #   include "arm/predict.h"
 #endif
-#if ARCH_AARCH64
+#if HAVE_AARCH64
 #   include "aarch64/pixel.h"
 #   include "aarch64/predict.h"
 #endif
-#if ARCH_MIPS
+#if HAVE_MSA
 #   include "mips/pixel.h"
 #endif
 
@@ -508,7 +508,7 @@ SATD_X_DECL7( _avx512 )
 #endif
 
 #if !HIGH_BIT_DEPTH
-#if HAVE_ARMV6 || ARCH_AARCH64
+#if HAVE_ARMV6 || HAVE_AARCH64
 SATD_X_DECL7( _neon )
 #endif
 #endif // !HIGH_BIT_DEPTH
@@ -532,7 +532,7 @@ INTRA_MBCMP_8x8(sa8d,, _c )
 INTRA_MBCMP_8x8( sad, _mmx2,  _c )
 INTRA_MBCMP_8x8(sa8d, _sse2,  _sse2 )
 #endif
-#if !HIGH_BIT_DEPTH && (HAVE_ARMV6 || ARCH_AARCH64)
+#if !HIGH_BIT_DEPTH && (HAVE_ARMV6 || HAVE_AARCH64)
 INTRA_MBCMP_8x8( sad, _neon, _neon )
 INTRA_MBCMP_8x8(sa8d, _neon, _neon )
 #endif
@@ -602,7 +602,7 @@ INTRA_MBCMP(satd,  8x16, dc, h,  v, c, _neon, _c )
 INTRA_MBCMP( sad, 16x16,  v, h, dc,  , _neon, _neon )
 INTRA_MBCMP(satd, 16x16,  v, h, dc,  , _neon, _neon )
 #endif
-#if !HIGH_BIT_DEPTH && ARCH_AARCH64
+#if !HIGH_BIT_DEPTH && HAVE_AARCH64
 INTRA_MBCMP( sad,  4x4,   v, h, dc,  , _neon, _neon )
 INTRA_MBCMP(satd,  4x4,   v, h, dc,  , _neon, _neon )
 INTRA_MBCMP( sad,  8x8,  dc, h,  v, c, _neon, _neon )
@@ -804,7 +804,7 @@ static int x264_pixel_ads1( int enc_dc[1], uint16_t *sums, int delta,
 /****************************************************************************
  * x264_pixel_init:
  ****************************************************************************/
-void x264_pixel_init( int cpu, x264_pixel_function_t *pixf )
+void x264_pixel_init( uint32_t cpu, x264_pixel_function_t *pixf )
 {
     memset( pixf, 0, sizeof(*pixf) );
 
@@ -1434,7 +1434,7 @@ void x264_pixel_init( int cpu, x264_pixel_function_t *pixf )
     }
 #endif
 
-#if ARCH_AARCH64
+#if HAVE_AARCH64
     if( cpu&X264_CPU_NEON )
     {
         INIT8( sad, _neon );
@@ -1475,7 +1475,7 @@ void x264_pixel_init( int cpu, x264_pixel_function_t *pixf )
         pixf->ssim_4x4x2_core   = x264_pixel_ssim_4x4x2_core_neon;
         pixf->ssim_end4         = x264_pixel_ssim_end4_neon;
     }
-#endif // ARCH_AARCH64
+#endif // HAVE_AARCH64
 
 #if HAVE_MSA
     if( cpu&X264_CPU_MSA )

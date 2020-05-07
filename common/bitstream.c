@@ -1,7 +1,7 @@
 /*****************************************************************************
  * bitstream.c: bitstream writing
  *****************************************************************************
- * Copyright (C) 2003-2019 x264 project
+ * Copyright (C) 2003-2020 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Fiona Glaser <fiona@x264.com>
@@ -45,7 +45,7 @@ static uint8_t *nal_escape_c( uint8_t *dst, uint8_t *src, uint8_t *end )
 #if HAVE_ARMV6
 #include "arm/bitstream.h"
 #endif
-#if ARCH_AARCH64
+#if HAVE_AARCH64
 #include "aarch64/bitstream.h"
 #endif
 
@@ -103,7 +103,7 @@ void x264_nal_encode( x264_t *h, uint8_t *dst, x264_nal_t *nal )
     x264_emms();
 }
 
-void x264_bitstream_init( int cpu, x264_bitstream_function_t *pf )
+void x264_bitstream_init( uint32_t cpu, x264_bitstream_function_t *pf )
 {
     memset( pf, 0, sizeof(*pf) );
 
@@ -159,7 +159,7 @@ void x264_bitstream_init( int cpu, x264_bitstream_function_t *pf )
     if( cpu&X264_CPU_NEON )
         pf->nal_escape = x264_nal_escape_neon;
 #endif
-#if ARCH_AARCH64
+#if HAVE_AARCH64
     if( cpu&X264_CPU_NEON )
         pf->nal_escape = x264_nal_escape_neon;
 #endif

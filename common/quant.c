@@ -1,7 +1,7 @@
 /*****************************************************************************
  * quant.c: quantization and level-run
  *****************************************************************************
- * Copyright (C) 2005-2019 x264 project
+ * Copyright (C) 2005-2020 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Fiona Glaser <fiona@x264.com>
@@ -31,16 +31,16 @@
 #if HAVE_MMX
 #include "x86/quant.h"
 #endif
-#if ARCH_PPC
+#if HAVE_ALTIVEC
 #   include "ppc/quant.h"
 #endif
-#if ARCH_ARM
+#if HAVE_ARMV6
 #   include "arm/quant.h"
 #endif
-#if ARCH_AARCH64
+#if HAVE_AARCH64
 #   include "aarch64/quant.h"
 #endif
-#if ARCH_MIPS
+#if HAVE_MSA
 #   include "mips/quant.h"
 #endif
 
@@ -408,7 +408,7 @@ level_run(16)
 #define INIT_TRELLIS(...)
 #endif
 
-void x264_quant_init( x264_t *h, int cpu, x264_quant_function_t *pf )
+void x264_quant_init( x264_t *h, uint32_t cpu, x264_quant_function_t *pf )
 {
     pf->quant_8x8 = quant_8x8;
     pf->quant_4x4 = quant_4x4;
@@ -756,7 +756,7 @@ void x264_quant_init( x264_t *h, int cpu, x264_quant_function_t *pf )
         pf->coeff_last8 = x264_coeff_last8_arm;
     }
 #endif
-#if HAVE_ARMV6 || ARCH_AARCH64
+#if HAVE_ARMV6 || HAVE_AARCH64
     if( cpu&X264_CPU_NEON )
     {
         pf->quant_2x2_dc   = x264_quant_2x2_dc_neon;
@@ -776,7 +776,7 @@ void x264_quant_init( x264_t *h, int cpu, x264_quant_function_t *pf )
         pf->decimate_score64 = x264_decimate_score64_neon;
     }
 #endif
-#if ARCH_AARCH64
+#if HAVE_AARCH64
     if( cpu&X264_CPU_ARMV8 )
     {
         pf->coeff_last4 = x264_coeff_last4_aarch64;

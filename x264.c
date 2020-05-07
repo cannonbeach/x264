@@ -1,7 +1,7 @@
 /*****************************************************************************
  * x264: top-level x264cli functions
  *****************************************************************************
- * Copyright (C) 2003-2019 x264 project
+ * Copyright (C) 2003-2020 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -373,7 +373,7 @@ static void print_version_info( void )
 #endif
 }
 
-static int main_internal( int argc, char **argv )
+REALIGN_STACK int main( int argc, char **argv )
 {
     if( argc == 4 && !strcmp( argv[1], "--autocomplete" ) )
         return x264_cli_autocomplete( argv[2], argv[3] );
@@ -426,11 +426,6 @@ static int main_internal( int argc, char **argv )
 #endif
 
     return ret;
-}
-
-int main( int argc, char **argv )
-{
-    return x264_stack_align( main_internal, argc, argv );
 }
 
 static char const *strtable_lookup( const char * const table[], int idx )
@@ -1671,6 +1666,10 @@ generic_option:
     x264_cli_log( demuxername, X264_LOG_INFO, "%dx%d%c %u:%u @ %u/%u fps (%cfr)\n", info.width,
                   info.height, info.interlaced ? 'i' : 'p', info.sar_width, info.sar_height,
                   info.fps_num, info.fps_den, info.vfr ? 'v' : 'c' );
+
+    FAIL_IF_ERROR( info.width <= 0 || info.height <= 0 ||
+                   info.width > MAX_RESOLUTION || info.height > MAX_RESOLUTION,
+                   "invalid width x height (%dx%d)\n", info.width, info.height );
 
     if( tcfile_name )
     {
